@@ -1,6 +1,6 @@
 /build
 /.vs
-
+/.vscode
 
 *.log
 xbar.toml
