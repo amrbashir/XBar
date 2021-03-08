@@ -7,10 +7,10 @@ RunAtStartup=true
 # Taskbar Tint color, This is in hexadecimal notation ex: #7289DA
 # It can also contain opacity(alpha) ex: #BF7289DA => {BF equals 75% opacity}
 # for more info about hexdecimal color opacity, check this https://gist.github.com/lopspower/03fb1cc0ac9f32ef38f4
-Color='#00000000'
+Color="#00000000"
 
 # Can be one of  (normal, transparent, blur, fluent, opaque)
-AccentState='transparent'
+AccentState="transparent"
 
 # Rules define how this taskbar state changes according to active window (Only  for Regular and MaximizedWindow states)
 #
@@ -19,27 +19,27 @@ AccentState='transparent'
 # Note:- notice the quotes around the two sides of the rule
 #
 # Rule syntax:
-#   'exename'='color/accentState'.
+#   "exename"="color/accentState".
 # Example:
 #   [Regular.Rules]
-#   'cmd.exe'='#202225/opaque'
-#   'discord.exe'='#202225/opaque'
+#   "cmd.exe"="#202225/opaque"
+#   "discord.exe"="#202225/opaque"
 [Regular.Rules]
-# 'cmd.exe'='#202225/opaque'
-# 'discord.exe'='#202225/opaque'
+# "cmd.exe"="#202225/opaque"
+# "discord.exe"="#202225/opaque"
 
 
 # These options are for when there is a Maximized Window open
 [MaximizedWindow]
-Color='#1F1F1F'
-AccentState='opaque'
+Color="#1F1F1F"
+AccentState="opaque"
 
 [MaximizedWindow.Rules]
-'cmd.exe'='#202225/opaque'
-'discord.exe'='#202225/opaque'
+"cmd.exe"="#202225/opaque"
+"discord.exe"="#202225/opaque"
 
 
 # These options are for when The TaskView is open
 [TaskViewOpen]
-Color='#1F1F1F'
-AccentState='transparent'
+Color="#1F1F1F"
+AccentState="transparent"

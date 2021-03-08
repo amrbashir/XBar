@@ -38,6 +38,14 @@ namespace utils::strings {
      * @returns std::string
      */
     std::string toLower(const std::string &str);
+
+    /**
+     * Converts a wstring to string
+     *
+     * @param str is the string to be lowered
+     * @returns std::string
+     */
+    std::string wstring_to_string(const std::wstring &str);
 } // namespace utils::strings
 
 #endif

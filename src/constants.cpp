@@ -1,7 +1,9 @@
+#include "utils/strings.h"
 #include <ShlObj.h>
 #include <string>
 
 using namespace std;
+using namespace utils;
 
 extern const UINT_PTR IDM_CONTEXT_EDIT_SETTINGS = 1000;
 extern const UINT_PTR IDM_CONTEXT_HELP          = 1001;
@@ -21,7 +23,7 @@ string app_data_folder_path() {
     wstring save_path(path);
     CoTaskMemFree(path);
 
-    return string(save_path.begin(), save_path.end());
+    return strings::wstring_to_string(save_path);
 }
 
 extern const string MY_APP_DATA_DIR  = app_data_folder_path() + "\\XBar";

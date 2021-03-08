@@ -1,5 +1,6 @@
 #include "strings.h"
 #include <cctype>
+#include <cuchar>
 #include <string>
 
 using namespace std;
@@ -24,3 +25,12 @@ string strings::toLower(const string &str) {
     }
     return lowered;
 };
+
+std::string strings::wstring_to_string(const std::wstring &str) {
+    auto        src   = str.data();
+    auto        state = std::mbstate_t();
+    auto        size  = std::wcsrtombs(nullptr, &src, 0, &state);
+    std::string out_str(size, '\0');
+    std::wcsrtombs(out_str.data(), &src, size + 1, &state);
+    return out_str;
+}
