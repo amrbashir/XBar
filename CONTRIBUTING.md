@@ -56,8 +56,9 @@ Thank you for wanting to contribute to XBar.
 
 2. Open command palette and select `CMake: Select Variant` then select `Release`.
 3. Open command palette and select `CMake: Configure` and wait for it to finish.
-4. Open a terminal in the project root directory.
-5. run this command:
+4. Open command palette and select `CMake: Build` and wait for it to finish.
+5. Open a terminal in the project root directory.
+6. run this command:
     ```powershell
     msbuild .\build\PACKAGE.vcxproj /p:Configuration=Release
     ```

@@ -30,15 +30,14 @@ target_link_libraries(XBar PRIVATE tomlplusplus::tomlplusplus)
 # ##############################################################################
 install(TARGETS XBar RUNTIME DESTINATION "." CONFIGURATIONS Release)
 # copy 3rd party dlls
-file(GLOB dllFiles "${CMAKE_CURRENT_BINARY_DIR}/Release/*.dll")
 install(
-  FILES ${dllFiles}
+  FILES "${CMAKE_CURRENT_BINARY_DIR}/Release/fmt.dll"
   CONFIGURATIONS Release
   DESTINATION ".")
 
 # copy assets folder
 install(
-  DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/assets"
+  DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/Release/assets"
   CONFIGURATIONS Release
   DESTINATION ".")
 
