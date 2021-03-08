@@ -1,30 +1,71 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.19.4)
 
 project(
   XBar
-  DESCRIPTION "A tool to customize windows taskbar appearance"
+  DESCRIPTION "A tool to change windows 10 taskbar appearance"
   VERSION 0.1.0)
 
-# copy the XBar.ico to the build directory for release and debug
-configure_file(${CMAKE_SOURCE_DIR}/src/assets/XBar.ico
-               ${CMAKE_BINARY_DIR}/Release/assets/XBar.ico COPYONLY)
-configure_file(${CMAKE_SOURCE_DIR}/src/assets/XBar.ico
-               ${CMAKE_BINARY_DIR}/Debug/assets/XBar.ico COPYONLY)
-
-# copy the Defaults.toml file to the build directory for release and debug
-configure_file(${CMAKE_SOURCE_DIR}/src/assets/Defaults.toml
-               ${CMAKE_BINARY_DIR}/Release/assets/Defaults.toml COPYONLY)
-configure_file(${CMAKE_SOURCE_DIR}/src/assets/Defaults.toml
-               ${CMAKE_BINARY_DIR}/Debug/assets/Defaults.toml COPYONLY)
+# copy the assets folder to Release/Debug builds folder
+file(COPY "${CMAKE_SOURCE_DIR}/src/assets"
+     DESTINATION "${CMAKE_BINARY_DIR}/Debug")
+file(COPY "${CMAKE_SOURCE_DIR}/src/assets"
+     DESTINATION "${CMAKE_BINARY_DIR}/Release")
 
 file(GLOB_RECURSE sourceFiles "src/*.cpp")
-add_executable(XBar WIN32 ${sourceFiles})
+file(GLOB_RECURSE resourceFiles "src/*.rc")
+add_executable(XBar WIN32 ${sourceFiles} ${resourceFiles})
 target_compile_features(XBar PUBLIC cxx_std_20)
 
-# fmt package
+# ##############################################################################
+# Packages
+# ##############################################################################
 find_package(fmt CONFIG REQUIRED)
 target_link_libraries(XBar PRIVATE fmt::fmt)
 
-# toml++ package
 find_package(tomlplusplus CONFIG REQUIRED)
 target_link_libraries(XBar PRIVATE tomlplusplus::tomlplusplus)
+
+# ##############################################################################
+# Installer configuration
+# ##############################################################################
+install(TARGETS XBar RUNTIME DESTINATION "." CONFIGURATIONS Release)
+# copy 3rd party dlls
+file(GLOB dllFiles "${CMAKE_CURRENT_BINARY_DIR}/Release/*.dll")
+install(
+  FILES ${dllFiles}
+  CONFIGURATIONS Release
+  DESTINATION ".")
+
+# copy assets folder
+install(
+  DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/assets"
+  CONFIGURATIONS Release
+  DESTINATION ".")
+
+# set the default install dir to 'XBar' rather than 'XBar <version>'
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "XBar")
+
+# prompt user to uninstall before install new version
+set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
+
+# set the installer icon
+set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/src/assets/XBar_icon.ico")
+
+# set the app icon in Programs and Features
+set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS
+    "WriteRegStr HKLM 'Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Uninstall\\\\XBar' 'DisplayIcon' '$INSTDIR\\\\XBar.exe'"
+)
+
+# set installer license
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.md")
+
+# create a start menu shortcut
+set(CPACK_NSIS_CREATE_ICONS_EXTRA
+    "CreateShortCut '$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\XBar.lnk' '$INSTDIR\\\\XBar.exe'"
+)
+
+# delete the start menu shortcut on uninstall
+set(CPACK_NSIS_DELETE_ICONS_EXTRA
+    "Delete '$SMPROGRAMS\\\\$START_MENU\\\\XBar.lnk'")
+
+include(CPack)

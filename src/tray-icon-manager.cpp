@@ -5,7 +5,7 @@
 
 using namespace utils;
 
-const HICON LOGO_ICON = (HICON)LoadImage(NULL, "assets\\XBar.ico", IMAGE_ICON, 48, 48,
+const HICON LOGO_ICON = (HICON)LoadImage(NULL, "assets\\XBar_icon.ico", IMAGE_ICON, 48, 48,
                                          LR_LOADFROMFILE | LR_DEFAULTSIZE);
 
 void Tray_Icon_Manager::register_tray_icon(HWND hwnd) {
@@ -22,7 +22,7 @@ void Tray_Icon_Manager::register_tray_icon(HWND hwnd) {
     };
 
     if (Shell_NotifyIcon(NIM_SETVERSION, &icon_data) == FALSE) {
-        logger::error("Failed to set tray icon version");
+        logger::error("Failed to set tray NIM_SETVERSION");
     }
 }
 

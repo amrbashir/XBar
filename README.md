@@ -1,6 +1,6 @@
 # XBar
 
-Changes the appearance of windows 10 taskbar.
+A tool to change windows 10 taskbar appearance.
 
 ## Screenshots:
  TODO
