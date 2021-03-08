@@ -15,11 +15,12 @@ Thank you for wanting to contribute to XBar.
 
 **VS Code extensions**:
 1. C/C++ (Required)
-2. CMake (Optional)
+2. CMake (Required)
 3. CMake Tools (Required)
-5. cmake-format (Optonal)
+5. cmake-format (Optional)
 4. EditorConfig for VS Code (Required)
 6. Bracket Pair Colorizer 2 (Optional)
+> They should be recommended to you after opening the project folder in VS Code.
 ## Prepare :
 1. Clone the repo
     ```powershell
