@@ -28,6 +28,7 @@ ACCENT_STATE _parse_accent_state_from_string(string state) {
     return ACCENT_STATE::ACCENT_NORMAL;
 }
 
+// rule are expected to be `color/accentState` like `#ffffff/discord.exe`
 tuple<ACCENT_STATE, array<uint8_t, 4>> _parse_rule(string rule) {
     const string trimmed_rule = strings::trim(rule);
     const string color        = trimmed_rule.substr(0, trimmed_rule.find_first_of("/"));
@@ -42,20 +43,16 @@ void _apply_style(HWND taskbar, toml::table config, HWND window, string taskbar_
     const string path    = window::get_window_exe_path(window);
     const string exeName = strings::toLower(path.substr(path.find_last_of("\\") + 1, string::npos));
 
-    const auto maximized_window_rules = config["MaximizedWindow"]["Rules"];
-    if (maximized_window_rules[exeName]) {
-        // a rule has been found for the current window
-        const auto [accent_state, color]
-            = _parse_rule(maximized_window_rules[exeName].value<string>().value());
+    const auto rules = config[taskbar_state]["Rules"];
+    // a rule has been found for the current window
+    if (rules[exeName]) {
+        const auto [accent_state, color] = _parse_rule(rules[exeName].value<string>().value());
         window::set_window_style(taskbar, accent_state, color);
     } else {
-        // no rules has been found for the current window
-        const auto maximized_window_accent_state
-            = config[taskbar_state]["AccentState"].value<string>().value();
-        const auto color_string       = config[taskbar_state]["Color"].value<string>().value();
-        const array<uint8_t, 4> color = color::from_hex_str(color_string);
-        const ACCENT_STATE      accent_state
-            = _parse_accent_state_from_string(maximized_window_accent_state);
+        const auto accent_state_str = config[taskbar_state]["AccentState"].value<string>().value();
+        const auto color_string     = config[taskbar_state]["Color"].value<string>().value();
+        const array<uint8_t, 4> color        = color::from_hex_str(color_string);
+        const ACCENT_STATE      accent_state = _parse_accent_state_from_string(accent_state_str);
         window::set_window_style(taskbar, accent_state, color);
     };
 }
