@@ -11,13 +11,14 @@ using namespace utils;
 
 void log(string log_level, string message) {
 #ifndef _DEBUG
+    // creates the app directory if it doesn't exist
     CreateDirectory(MY_APP_DATA_DIR.c_str(), nullptr);
 #endif
 
+    // get the timestamp
     time_t    rawTime;
     struct tm timeInfo;
     char      dateAndTime[80];
-
     time(&rawTime);
     localtime_s(&timeInfo, &rawTime);
     strftime(dateAndTime, 80, "%d/%b/%y %I:%M %p", &timeInfo);

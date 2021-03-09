@@ -14,6 +14,7 @@
 using namespace std;
 using namespace utils;
 
+// initialize needed variables
 const LPCSTR WINDOW_CLASS = "XBar window class";
 const HWND   taskbar      = FindWindow("Shell_TrayWnd", nullptr);
 toml::table  config       = Config_Manager::parse_config_file();
@@ -23,13 +24,15 @@ LRESULT CALLBACK windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case WM_USER_SHELLICON:
             switch (lParam) {
                 case WM_CONTEXTMENU:
+                    // open context menu on right clicking the tray icon
                     Context_Menu_Manager::create_context_menu(hwnd);
                     break;
             }
             break;
 
         case WM_COMMAND:
-            Context_Menu_Manager::execute_context_menu_item(hwnd, wParam);
+            // a context menu item is clicked so we handle it in the Context_Menu_Manager
+            Context_Menu_Manager::context_menu_item_click(hwnd, wParam);
             break;
 
         case WM_DESTROY:
@@ -44,18 +47,18 @@ LRESULT CALLBACK windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     return 0;
 }
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
-    // Register the window class
+
+    // register a window class
     WNDCLASS wc      = {};
     wc.hInstance     = hInstance;
     wc.lpszClassName = WINDOW_CLASS;
     wc.lpfnWndProc   = windowProc;
-
     if (!RegisterClass(&wc)) {
         logger::error("Failed to register window Class");
         return -1;
     };
 
-    // Create a hidden window to recieve events
+    // create a hidden window to recieve events
     const HWND hwnd = CreateWindowEx(0, WINDOW_CLASS, "XBar", WS_TILEDWINDOW, 200, 200, 500, 500,
                                      nullptr, nullptr, hInstance, nullptr);
     if (hwnd == nullptr) {
@@ -64,10 +67,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     }
 
 #ifndef _DEBUG
-    // Check RunAtStartup
+    // check `RunAtStartup` option
+    // if true then add a run entry in registry if it doesn't exist
+    // else remove the run entry from the registry if it exists
     const bool run_at_startup = config["General"]["RunAtStartup"].value<bool>().value();
     if (run_at_startup) {
-        // add a run entry in registry
         const string app_path = window::get_window_exe_path(hwnd);
         HKEY         hkey     = NULL;
         RegCreateKey(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", &hkey);
@@ -76,24 +80,24 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         RegCloseKey(hkey);
 
     } else {
-        // remove the run entry from registry
         HKEY hkey = NULL;
         RegCreateKey(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", &hkey);
         RegDeleteValue(hkey, "XBar");
         RegCloseKey(hkey);
     }
 #endif
-    // Register the tray icon
+
+    // add tray icon to the system tray
     Tray_Icon_Manager::register_tray_icon(hwnd);
 
-    // Set the procedure for active window changed event
+    // set the procedure for active window changed event
     HWINEVENTHOOK hEvent = SetWinEventHook(
         EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, NULL,
         [](HWINEVENTHOOK hWinEventHook, DWORD dwEvent, HWND hwnd, LONG idObject, LONG idChild,
            DWORD dwEventThread, DWORD dwmsEventTime) { style_the_taskbar(taskbar, config); },
         0, 0, WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS);
 
-    // Start the XBar thread
+    // start a new thread to style the taskbar every 14 millisecons
     thread taskbar_styling_thread([]() {
         while (true) {
             style_the_taskbar(taskbar, config);
@@ -101,6 +105,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         }
     });
 
+    // run the message loop
     MSG msg = { 0 };
     while (GetMessage(&msg, nullptr, NULL, NULL)) {
         TranslateMessage(&msg);

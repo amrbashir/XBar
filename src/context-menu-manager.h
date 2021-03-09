@@ -6,6 +6,6 @@
 
 namespace Context_Menu_Manager {
     void create_context_menu(HWND hwnd);
-    void execute_context_menu_item(HWND hwnd, WPARAM wParam);
+    void context_menu_item_click(HWND hwnd, WPARAM wParam);
 } // namespace Context_Menu_Manager
 #endif

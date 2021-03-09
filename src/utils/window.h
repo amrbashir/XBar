@@ -42,7 +42,7 @@ namespace utils::window {
      * @param hwnd is a HWND to the window
      * @returns bool
      */
-    bool is_alt_tab_window(HWND hwnd);
+    bool exists_in_taskbar(HWND hwnd);
 } // namespace utils::window
 
 #endif

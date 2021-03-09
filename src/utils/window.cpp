@@ -21,7 +21,8 @@ void window::set_window_style(HWND hwnd, ACCENT_STATE accent, array<uint8_t, 4> 
     uint8_t red   = rgba_array[0];
     uint8_t green = rgba_array[1];
     uint8_t blue  = rgba_array[2];
-    // Acrylic mode doesn't like 0 opacity/alpha => credit goes to TranslucentTB project.
+
+    // Acrylic doesn't like 0 opacity/alpha => credit goes to TranslucentTB project.
     uint8_t alpha = accent == ACCENT_STATE::ACCENT_ENABLE_ACRYLICBLURBEHIND && rgba_array[3] == 0
         ? 1
         : rgba_array[3];
@@ -61,7 +62,7 @@ bool window::iw_window_maximized(HWND hwnd) {
     return wp.showCmd == SW_SHOWMAXIMIZED;
 }
 
-bool window::is_alt_tab_window(HWND hwnd) {
+bool window::exists_in_taskbar(HWND hwnd) {
 
     /**
      * Credits of this function @see http://www.dfcd.net/projects/switcher/switcher.c

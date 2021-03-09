@@ -66,7 +66,7 @@ void style_the_taskbar(HWND taskbar, toml::table config) {
     // check if there is a maximized window
     HWND window = GetTopWindow(GetDesktopWindow());
     do {
-        if (window::is_alt_tab_window(window)
+        if (window::exists_in_taskbar(window)
             && window::iw_window_maximized(window)
             // makes sure we set the top_most_maximized_window only once
             && !maximized_window_exists) {
@@ -75,12 +75,9 @@ void style_the_taskbar(HWND taskbar, toml::table config) {
         }
     } while (window = GetWindow(window, GW_HWNDNEXT));
 
-    // after looping over the window apply style
     if (maximized_window_exists) {
-        // there is a maximized window so apply maximized window state rules
         _apply_style(taskbar, config, top_most_maximized_window, "MaximizedWindow");
     } else {
-        // No maximized windows, so apply regular state rules
         _apply_style(taskbar, config, top_most_window, "Regular");
     }
 }
