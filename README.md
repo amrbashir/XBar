@@ -1,5 +1,7 @@
 <p align="center">
     <img src="XBar.svg" >
+    <br />
+    <img src="https://img.shields.io/github/license/amrbashir/XBar?style=plastic" /> <img src="https://img.shields.io/github/v/release/amrbashir/XBar?style=plastic" />
 </p>
 
 # XBar
