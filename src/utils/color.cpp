@@ -42,7 +42,7 @@ array<uint8_t, 4> color::from_hex_str(string hex) {
         return array<uint8_t, 4> { r, g, b, a };
     } else {
         logger::error(fmt::format("Provided color `{0}` is not in the right format\n "
-                                  "returning a default black color `#000000`",
+                                  "returning a default black color `#000000`.",
                                   hex));
         return array<uint8_t, 4> { 0, 0, 0, 255 };
     }

@@ -1,6 +1,10 @@
+<p align="center">
+    <img src="XBar.svg" >
+</p>
+
 # XBar
 
-A tool to change windows 10 taskbar appearance.
+A tool to change windows 10 taskbar appearance with per-app rules.
 
 ## Motivation
 Although TranslucentTB is a great project, it doesn't provide per-app taskbar color so I decided to make XBar to provide per-app rules which you can configure in the config file located at `%AppData%/XBar`.

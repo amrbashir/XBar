@@ -24,6 +24,7 @@ LRESULT CALLBACK windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case WM_USER_SHELLICON:
             switch (lParam) {
                 case WM_CONTEXTMENU:
+                    logger::deug("Context menu requested.");
                     // open context menu on right clicking the tray icon
                     Context_Menu_Manager::create_context_menu(hwnd);
                     break;
@@ -31,13 +32,16 @@ LRESULT CALLBACK windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             break;
 
         case WM_COMMAND:
+            logger::deug("Context menu item clicked.");
             // a context menu item is clicked so we handle it in the Context_Menu_Manager
             Context_Menu_Manager::context_menu_item_click(hwnd, wParam);
             break;
 
         case WM_DESTROY:
+            logger::info("Quitting XBar...");
             // reset taskbar to normal state before closing the app
             window::set_window_style(taskbar, ACCENT_STATE::ACCENT_NORMAL);
+            logger::info("Taskbar style is reset to normal.");
             PostQuitMessage(0);
             break;
 
@@ -54,7 +58,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     wc.lpszClassName = WINDOW_CLASS;
     wc.lpfnWndProc   = windowProc;
     if (!RegisterClass(&wc)) {
-        logger::error("Failed to register window Class");
+        logger::error("Failed to register window Class.");
         return -1;
     };
 
@@ -62,7 +66,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     const HWND hwnd = CreateWindowEx(0, WINDOW_CLASS, "XBar", WS_TILEDWINDOW, 200, 200, 500, 500,
                                      nullptr, nullptr, hInstance, nullptr);
     if (hwnd == nullptr) {
-        logger::error("Failed to create widnow and obtain a handle to it");
+        logger::error("Failed to create widnow and obtain a handle to it.");
         return -1;
     }
 
@@ -71,20 +75,25 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     // if true then add a run entry in registry if it doesn't exist
     // else remove the run entry from the registry if it exists
     const bool run_at_startup = config["General"]["RunAtStartup"].value<bool>().value();
+    HKEY       hkey           = NULL;
+    auto       error          = RegCreateKey(HKEY_CURRENT_USER,
+                              "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", &hkey);
+    if (error != ERROR_SUCCESS)
+        logger::error("Failed to open the registry key");
+
     if (run_at_startup) {
         const string app_path = window::get_window_exe_path(hwnd);
-        HKEY         hkey     = NULL;
-        RegCreateKey(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", &hkey);
-        RegSetValueEx(hkey, "XBar", 0, REG_SZ, (BYTE *)app_path.c_str(),
-                      (DWORD)(app_path.size() + 1) * sizeof(wchar_t));
-        RegCloseKey(hkey);
 
+        auto error = RegSetValueEx(hkey, "XBar", 0, REG_SZ, (BYTE *)app_path.c_str(),
+                                   (DWORD)(app_path.size() + 1) * sizeof(wchar_t));
+        if (error != ERROR_SUCCESS)
+            logger::error("Failed to set the startup registry key value.");
     } else {
-        HKEY hkey = NULL;
-        RegCreateKey(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", &hkey);
-        RegDeleteValue(hkey, "XBar");
-        RegCloseKey(hkey);
+        auto error = RegDeleteValue(hkey, "XBar");
+        if (error != ERROR_SUCCESS)
+            logger::error("Failed to delete the startup registry key value.");
     }
+    RegCloseKey(hkey);
 #endif
 
     // add tray icon to the system tray

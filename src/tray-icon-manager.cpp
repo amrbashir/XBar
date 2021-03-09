@@ -18,11 +18,11 @@ void Tray_Icon_Manager::register_tray_icon(HWND hwnd) {
     icon_data.uCallbackMessage = WM_USER_SHELLICON;
     icon_data.uVersion         = NOTIFYICON_VERSION_4;
     if (Shell_NotifyIcon(NIM_ADD, &icon_data) == FALSE) {
-        logger::error("Failed to add tray icon");
+        logger::error("Failed to add tray icon.");
     };
 
     if (Shell_NotifyIcon(NIM_SETVERSION, &icon_data) == FALSE) {
-        logger::error("Failed to set tray NIM_SETVERSION");
+        logger::error("Failed to set tray NIM_SETVERSION.");
     }
 }
 
