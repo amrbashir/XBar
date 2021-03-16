@@ -4,6 +4,9 @@ Thank you for wanting to contribute to XBar.
 # Building from source
 
 ## Requirements
+- Windows 10 64bit
+    > you can use 32bit installation but some steps will be different, so... adapt!
+
 - [git](https://git-scm.com)
 - [Visual studio build tools 2019](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019)
 - [vcpkg](https://github.com/microsoft/vcpkg)
@@ -21,6 +24,7 @@ Thank you for wanting to contribute to XBar.
 4. EditorConfig for VS Code (Required)
 6. Bracket Pair Colorizer 2 (Optional)
 > They should be recommended to you after opening the project folder in VS Code.
+
 ## Prepare
 1. Clone the repo
     ```powershell
@@ -31,7 +35,7 @@ Thank you for wanting to contribute to XBar.
     ```powershell
     vcpkg install --triplet x64-windows fmt tomlplusplus
     ```
-    or if you are on 32bit system or want to build 32bit exe and installer
+    and if you want to build/degbu the 32bit installer or the 32bit exe
 
     ```powershell
     vcpkg install --triplet x86-windows fmt tomlplusplus
@@ -42,7 +46,7 @@ Thank you for wanting to contribute to XBar.
 4. Open `.vscode/settings.json` file and change `[vcpkg root]` with the path where you installed vcpkg.
 
 ## Debug and Build
-1. Open command palette (<kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>p</kbd> or <kbd>F1</kbd>) and select `CMake: Select a Kit` then select `Visual Studio Build Tools 2019 Release x86_amd64` or if you are on 32bit system or want to build/debug 32bit exe, select `Visual Studio Build Tools 2019 Release x86`.
+1. Open command palette (<kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>p</kbd> or <kbd>F1</kbd>) and select `CMake: Select a Kit` then select `Visual Studio Build Tools 2019 Release amd64` or if you want to build/debug 32bit exe, select `Visual Studio Build Tools 2019 Release amd64_x86`.
     > Make sure to clean the cache after Selecting a different Kit by opening the command palette and selecting `CMake: Delete Cache and Reconfigure`
 
 2. Open command palette and select `CMake: Select Variant` then select what ever you want.
@@ -52,7 +56,7 @@ Thank you for wanting to contribute to XBar.
     > If you selected `CMake: Build`, You will find the exe in either `.\build\Debug` or `.\build\Release` depending on the variant you selected.
 
 ## Build the installer
-1. Open command palette and select `CMake: Select a Kit` then select `Visual Studio Build Tools 2019 Release x86_amd64` or if you are on 32bit system or want to build 32bit installer, select `Visual Studio Build Tools 2019 Release x86`.
+1. Open command palette and select `CMake: Select a Kit` then select `Visual Studio Build Tools 2019 Release amd64` or if you want to build 32bit installer, select `Visual Studio Build Tools 2019 Release amd64_x86`.
     > Make sure to clean the cache after Selecting a different Kit by opening the command palette and selecting `CMake: Delete Cache and Reconfigure`
 
 2. Open command palette and select `CMake: Select Variant` then select `Release`.
