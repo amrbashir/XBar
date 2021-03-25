@@ -3,6 +3,7 @@
     <br />
     <img src="https://img.shields.io/github/license/amrbashir/xbar" />
     <img src="https://img.shields.io/github/v/release/amrbashir/xbar" />
+    <img src="https://img.shields.io/github/workflow/status/amrbashir/XBar/CI/master" />
 </p>
 
 # XBar

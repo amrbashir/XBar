@@ -14,7 +14,7 @@ Thank you for wanting to contribute to XBar.
 - [NSIS](https://nsis.sourceforge.io/Download)
 - (optional) [LLVM](https://releases.llvm.org/download.html) contains `clang-format` which the `C/C++ vscode plugin` uses to format the code.
 
-> CMake, msbuild and vcpkg must be included in the [PATH](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/).
+> CMake and vcpkg must be included in the [PATH](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/).
 
 **VS Code extensions**
 1. C/C++ (Required)
@@ -65,6 +65,6 @@ Thank you for wanting to contribute to XBar.
 5. Open a terminal in the project root directory.
 6. run this command:
     ```powershell
-    msbuild .\build\PACKAGE.vcxproj /p:Configuration=Release
+    cmake --build .\build\ --config Release --target PACKAGE
     ```
     > You will find the installer in `.\build` .

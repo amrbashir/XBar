@@ -1,0 +1,93 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+
+jobs:
+  create_release:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.VERSION }}
+      upload_url: ${{ steps.create_release.outputs.UPLOADURL }}
+
+    steps:
+      - name: Get version from tag
+        id: get_version
+        run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3 | cut -c2-)
+
+      - name: Create a github release
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: "echo $(curl -X POST -H \"Accept: application/vnd.github.v3+json\" -d '{\"tag_name\":\"v${{ steps.get_version.outputs.VERSION }}\",\"draft\":true,\"name\":\"XBar ${{ steps.get_version.outputs.VERSION }}\"}' https://api.github.com/repos/amrbashir/XBar/releases?access_token=$GITHUB_TOKEN -s | python -c \"import json,sys;obj=json.load(sys.stdin);print('::set-output name=UPLOADURL::' + obj['upload_url']);\")"
+
+
+  publish_x64:
+    runs-on: windows-latest
+    needs: create_release
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup vcpkg
+      run: |
+        git clone https://github.com/microsoft/vcpkg
+        vcpkg/bootstrap-vcpkg.bat -disableMetrics
+
+    - name: Install vcpkg dependencies
+      run: vcpkg/vcpkg.exe install --triplet x64-windows fmt tomlplusplus
+
+
+    - name: 'CMake: Configue'
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE:STRING=vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -G "Visual Studio 16 2019" -T host=x64 -A x64
+
+    - name: 'CMake: Build XBar 64-bit Installer'
+      run: cmake --build build --config Release --target PACKAGE
+
+    - name: Upload XBar 64-bit Installer
+      id: upload-release-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create_release.outputs.upload_url }}
+        asset_path: build/XBar-${{ needs.create_release.outputs.version }}-win64.exe
+        asset_name: XBar-${{ needs.create_release.outputs.version }}-win64.exe
+        asset_content_type: application/octet-stream
+
+
+  publish_x32:
+    runs-on: windows-latest
+    needs: create_release
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup vcpkg
+      run: |
+        git clone https://github.com/microsoft/vcpkg
+        vcpkg/bootstrap-vcpkg.bat -disableMetrics
+
+    - name: Install vcpkg dependencies
+      run: vcpkg/vcpkg.exe install --triplet x86-windows fmt tomlplusplus
+
+
+    - name: 'CMake: Configue'
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE:STRING=vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -G "Visual Studio 16 2019" -T host=x64 -A win32
+
+    - name: 'CMake: Build XBar 32-bit Installer'
+      run: cmake --build build --config Release --target PACKAGE
+
+    - name: Upload XBar 32-bit Installer
+      id: upload-release-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create_release.outputs.upload_url }}
+        asset_path: build/XBar-${{ needs.create_release.outputs.version }}-win32.exe
+        asset_name: XBar-${{ needs.create_release.outputs.version }}-win32.exe
+        asset_content_type: application/octet-stream

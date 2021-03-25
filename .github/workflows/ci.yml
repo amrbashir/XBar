@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - "**"
+    tags-ignore:
+      - "v*"
+
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup vcpkg
+      run: |
+        git clone https://github.com/microsoft/vcpkg
+        vcpkg/bootstrap-vcpkg.bat -disableMetrics
+
+    - name: Install vcpkg dependencies
+      run: vcpkg/vcpkg.exe install --triplet x64-windows fmt tomlplusplus
+
+
+    - name: 'CMake: Configue'
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE:STRING=vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -G "Visual Studio 16 2019" -T host=x64 -A x64
+
+    - name: 'CMake: Build XBar'
+      run: cmake --build build  --config Release --target XBar
+
+    - name: 'CMake: Build XBar Installer'
+      run: cmake --build build --config Release --target PACKAGE
+
