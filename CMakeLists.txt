@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.19.4)
 project(
   XBar
   DESCRIPTION "A tool to change windows 10 taskbar appearance"
-  VERSION 0.1.0)
+  VERSION 0.1.1)
 
 # copy the assets folder to Release/Debug builds folder
 file(COPY "${CMAKE_SOURCE_DIR}/src/assets"
