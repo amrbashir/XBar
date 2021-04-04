@@ -37,6 +37,6 @@ void Context_Menu_Manager::context_menu_item_click(HWND hwnd, WPARAM wParam) {
     }
     if (wParam == IDM_CONTEXT_EXIT) {
         Tray_Icon_Manager::unregister_tray_icon(hwnd);
-        ExitProcess(0);
+        DestroyWindow(hwnd);
     }
 }
