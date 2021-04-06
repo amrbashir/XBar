@@ -33,7 +33,7 @@ namespace utils::window {
      * @param hwnd is a HWND to the window
      * @returns bool
      */
-    bool iw_window_maximized(HWND hwnd);
+    bool is_window_maximized(HWND hwnd);
 
     /**
      * Checks if the window is in Taskbar aka can be switched to by using Alt+Tab

@@ -1,6 +1,5 @@
 #include "context-menu-manager.h"
 #include "constants.h"
-#include "tray-icon-manager.h"
 #include <Windows.h>
 #include <filesystem>
 
@@ -22,7 +21,7 @@ void Context_Menu_Manager::create_context_menu(HWND hwnd) {
     GetCursorPos(&pt);
 
     // display the context menu at the mouse position
-    TrackPopupMenu(context_menu, TPM_LEFTALIGN | TPM_RIGHTBUTTON, pt.x, pt.y, 0, hwnd, NULL);
+    TrackPopupMenu(context_menu, TPM_LEFTALIGN | TPM_RIGHTBUTTON, pt.x, pt.y, 0, hwnd, nullptr);
 
     // destroy the context menu object
     DestroyMenu(context_menu);
@@ -33,10 +32,10 @@ void Context_Menu_Manager::context_menu_item_click(HWND hwnd, WPARAM wParam) {
         WinExec(("notepad \"" + CONFIG_FILE_PATH + "\"").c_str(), SW_SHOWDEFAULT);
     }
     if (wParam == IDM_CONTEXT_HELP) {
-        ShellExecute(hwnd, "open", "https://github.com/amrbashir/XBar", NULL, NULL, SW_SHOWDEFAULT);
+        ShellExecute(hwnd, "open", "https://github.com/amrbashir/XBar", nullptr, nullptr,
+                     SW_SHOWDEFAULT);
     }
     if (wParam == IDM_CONTEXT_EXIT) {
-        Tray_Icon_Manager::unregister_tray_icon(hwnd);
         DestroyWindow(hwnd);
     }
 }

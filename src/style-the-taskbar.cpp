@@ -67,7 +67,7 @@ void style_the_taskbar(HWND taskbar, toml::table config) {
     HWND window = GetTopWindow(GetDesktopWindow());
     do {
         if (window::exists_in_taskbar(window)
-            && window::iw_window_maximized(window)
+            && window::is_window_maximized(window)
             // makes sure we set the top_most_maximized_window only once
             && !maximized_window_exists) {
             top_most_maximized_window = window;

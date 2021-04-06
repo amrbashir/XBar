@@ -49,12 +49,12 @@ string window::get_window_exe_path(HWND hwnd) {
 
     GetWindowThreadProcessId(hwnd, &proc_id);
     HANDLE proc_handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, proc_id);
-    GetModuleFileNameEx(proc_handle, NULL, path, MAX_PATH);
+    GetModuleFileNameEx(proc_handle, nullptr, path, MAX_PATH);
     CloseHandle(proc_handle);
     return path;
 }
 
-bool window::iw_window_maximized(HWND hwnd) {
+bool window::is_window_maximized(HWND hwnd) {
     WINDOWPLACEMENT wp = {};
     wp.length          = sizeof(WINDOWPLACEMENT);
     GetWindowPlacement(hwnd, &wp);
@@ -69,7 +69,7 @@ bool window::exists_in_taskbar(HWND hwnd) {
      */
 
     TITLEBARINFO ti;
-    HWND         hwndTry, hwndWalk = NULL;
+    HWND         hwndTry, hwndWalk = nullptr;
 
     if (!IsWindowVisible(hwnd))
         return false;

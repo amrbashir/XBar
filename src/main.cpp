@@ -1,8 +1,7 @@
-﻿#include "config.h"
+﻿#include "config-manager.h"
 #include "constants.h"
 #include "context-menu-manager.h"
 #include "style-the-taskbar.h"
-#include "tray-icon-manager.h"
 #include "utils/logger.h"
 #include "utils/window.h"
 #include <Windows.h>
@@ -14,13 +13,59 @@
 using namespace std;
 using namespace utils;
 
-const LPCSTR WINDOW_CLASS = "XBar window class";
-const HWND   taskbar      = FindWindow("Shell_TrayWnd", nullptr);
-toml::table  config       = Config_Manager::parse_config_file();
-bool         should_style = true;
-thread *     taskbar_styling_thread;
+thread *    taskbar_styling_thread;
+bool        should_style = true;
+const HWND  taskbar      = FindWindow("Shell_TrayWnd", nullptr);
+toml::table config       = Config_Manager::parse_config_file();
 
-LRESULT CALLBACK windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+void toggle_tray_icon(HWND hwnd, bool register_icon) {
+    const HICON LOGO_ICON = (HICON)LoadImage(nullptr, "assets\\XBar_icon.ico", IMAGE_ICON, 48, 48,
+                                             LR_LOADFROMFILE | LR_DEFAULTSIZE);
+
+    NOTIFYICONDATAA icon_data  = {};
+    icon_data.cbSize           = sizeof(icon_data);
+    icon_data.hWnd             = hwnd;
+    icon_data.uFlags           = NIF_ICON | NIF_MESSAGE;
+    icon_data.hIcon            = LOGO_ICON;
+    icon_data.uCallbackMessage = WM_USER_SHELLICON;
+    icon_data.uVersion         = NOTIFYICON_VERSION_4;
+
+    if (register_icon) {
+        if (Shell_NotifyIcon(NIM_ADD, &icon_data) == FALSE) {
+            logger::error("Failed to add tray icon.");
+        };
+
+        if (Shell_NotifyIcon(NIM_SETVERSION, &icon_data) == FALSE) {
+            logger::error("Failed to set tray NIM_SETVERSION.");
+        }
+    } else {
+        if (Shell_NotifyIcon(NIM_DELETE, &icon_data) == FALSE) {
+            logger::error("Failed to unregister tray icon.");
+        };
+    }
+}
+
+void toggle_startup(bool run_at_startup, string app_path) {
+    HKEY hkey  = nullptr;
+    auto error = RegCreateKey(HKEY_CURRENT_USER,
+                              "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", &hkey);
+    if (error != ERROR_SUCCESS)
+        logger::error("Failed to open the registry key");
+
+    if (run_at_startup) {
+        auto error = RegSetValueEx(hkey, "XBar", 0, REG_SZ, (BYTE *)app_path.c_str(),
+                                   (DWORD)(app_path.size() + 1) * sizeof(wchar_t));
+        if (error != ERROR_SUCCESS)
+            logger::error("Failed to set the startup registry key value.");
+    } else {
+        auto error = RegDeleteValue(hkey, "XBar");
+        if (error != ERROR_SUCCESS)
+            logger::error("Failed to delete the startup registry key value.");
+    }
+    RegCloseKey(hkey);
+}
+
+LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
         case WM_USER_SHELLICON:
             switch (lParam) {
@@ -37,10 +82,17 @@ LRESULT CALLBACK windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         }
         case WM_DESTROY: {
             logger::info("Quitting XBar...");
+
+            // stop all styling
             should_style = false;
+
+            // unregister the tray icon
+            toggle_tray_icon(hwnd, false);
+
             // reset the taskbar to normal
             window::set_window_style(taskbar, ACCENT_STATE::ACCENT_NORMAL);
             logger::info("Taskbar style is reset to normal.");
+
             PostQuitMessage(0);
             break;
         }
@@ -49,59 +101,42 @@ LRESULT CALLBACK windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     }
     return 0;
 }
+
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
 
-    WNDCLASS wc      = {};
-    wc.hInstance     = hInstance;
-    wc.lpszClassName = WINDOW_CLASS;
-    wc.lpfnWndProc   = windowProc;
-    if (!RegisterClass(&wc)) {
+    // register a window class
+    const LPCSTR WINDOW_CLASS = "XBar Window Class";
+
+    WNDCLASS w_class      = {};
+    w_class.hInstance     = hInstance;
+    w_class.lpszClassName = WINDOW_CLASS;
+    w_class.lpfnWndProc   = window_proc;
+    if (!RegisterClass(&w_class)) {
         logger::error("Failed to register window Class.");
         return -1;
     };
 
     // create a hidden window to recieve events
-    const HWND hwnd = CreateWindowEx(0, WINDOW_CLASS, "XBar", WS_TILEDWINDOW, 200, 200, 500, 500,
-                                     nullptr, nullptr, hInstance, nullptr);
-    if (hwnd == nullptr) {
+    const HWND window_hwnd = CreateWindowEx(0, WINDOW_CLASS, "XBar", WS_TILEDWINDOW, 200, 200, 500,
+                                            500, nullptr, nullptr, hInstance, nullptr);
+    if (window_hwnd == nullptr) {
         logger::error("Failed to create widnow and obtain a handle to it.");
         return -1;
     }
 
 #ifndef _DEBUG
-    // check `RunAtStartup` option
-    // if true then add a run entry in registry if it doesn't exist
-    // else remove the run entry from the registry if it exists
+    // add XBar to the startup programs or remove it based on the config
     const bool run_at_startup = config["General"]["RunAtStartup"].value<bool>().value();
-    HKEY       hkey           = NULL;
-    auto       error          = RegCreateKey(HKEY_CURRENT_USER,
-                              "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", &hkey);
-    if (error != ERROR_SUCCESS)
-        logger::error("Failed to open the registry key");
-
-    if (run_at_startup) {
-        const string app_path = window::get_window_exe_path(hwnd);
-
-        auto error = RegSetValueEx(hkey, "XBar", 0, REG_SZ, (BYTE *)app_path.c_str(),
-                                   (DWORD)(app_path.size() + 1) * sizeof(wchar_t));
-        if (error != ERROR_SUCCESS)
-            logger::error("Failed to set the startup registry key value.");
-    } else {
-        auto error = RegDeleteValue(hkey, "XBar");
-        if (error != ERROR_SUCCESS)
-            logger::error("Failed to delete the startup registry key value.");
-    }
-    RegCloseKey(hkey);
+    toggle_startup(run_at_startup, window::get_window_exe_path(window_hwnd));
 #endif
 
-    const bool hide_tray_icon = config["General"]["HideTrayIcon"].value<bool>().value();
-    if (!hide_tray_icon) {
-        Tray_Icon_Manager::register_tray_icon(hwnd);
-    }
+    // register the tray icon if needed
+    const bool show_tray_icon = config["General"]["ShowTrayIcon"].value<bool>().value();
+    toggle_tray_icon(window_hwnd, show_tray_icon);
 
     // set the procedure for active window changed event
     SetWinEventHook(
-        EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, NULL,
+        EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, nullptr,
         [](HWINEVENTHOOK hWinEventHook, DWORD dwEvent, HWND hwnd, LONG idObject, LONG idChild,
            DWORD dwEventThread, DWORD dwmsEventTime) {
             if (should_style) {
