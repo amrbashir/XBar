@@ -1,6 +1,11 @@
 [General]
 # Whether to run the app on windows startup or not.
 RunAtStartup=true
+# Whether to show the app icon in the system tray
+# WARNING:
+#   Without the tray icon, you can only close the app from the taskmanager and when that happens, the taskbar won't reset to normal.
+#   Openning the start menu will reset the taskbar to normal.
+HideTrayIcon=false
 
 # These options are for the base taskbar state
 [Regular]

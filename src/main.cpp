@@ -94,7 +94,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     RegCloseKey(hkey);
 #endif
 
-    Tray_Icon_Manager::register_tray_icon(hwnd);
+    const bool hide_tray_icon = config["General"]["HideTrayIcon"].value<bool>().value();
+    if (!hide_tray_icon) {
+        Tray_Icon_Manager::register_tray_icon(hwnd);
+    }
 
     // set the procedure for active window changed event
     SetWinEventHook(
