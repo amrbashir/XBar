@@ -13,6 +13,7 @@
 using namespace std;
 using namespace utils;
 
+HANDLE      instance_mutex;
 thread *    taskbar_styling_thread;
 bool        should_style = true;
 const HWND  taskbar      = FindWindow("Shell_TrayWnd", nullptr);
@@ -103,6 +104,14 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 }
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
+    // check if another instance is runnning
+    instance_mutex = OpenMutex(MUTEX_ALL_ACCESS, 0, "XBar v0.1.2");
+    if (instance_mutex) {
+        MessageBox(nullptr, "Another instance is already running.", "XBar", MB_OK);
+        return 0;
+    } else {
+        instance_mutex = CreateMutex(0, 0, "XBar v0.1.2");
+    }
 
     // register a window class
     const LPCSTR WINDOW_CLASS = "XBar Window Class";
