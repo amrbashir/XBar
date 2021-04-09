@@ -18,6 +18,26 @@ bool        should_style = true;
 const HWND  taskbar      = FindWindow("Shell_TrayWnd", nullptr);
 toml::table config       = Config_Manager::parse_config_file();
 
+void toggle_startup(bool run_at_startup, string app_path) {
+    HKEY hkey  = nullptr;
+    auto error = RegCreateKey(HKEY_CURRENT_USER,
+                              "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", &hkey);
+    if (error != ERROR_SUCCESS)
+        logger::error("Failed to open the registry key");
+
+    if (run_at_startup) {
+        auto error = RegSetValueEx(hkey, "XBar", 0, REG_SZ, (BYTE *)app_path.c_str(),
+                                   (DWORD)(app_path.size() + 1) * sizeof(wchar_t));
+        if (error != ERROR_SUCCESS)
+            logger::error("Failed to set the startup registry key value.");
+    } else {
+        auto error = RegDeleteValue(hkey, "XBar");
+        if (error != ERROR_SUCCESS)
+            logger::error("Failed to delete the startup registry key value.");
+    }
+    RegCloseKey(hkey);
+}
+
 void toggle_tray_icon(HWND hwnd, bool register_icon) {
     const HICON LOGO_ICON = (HICON)LoadImage(nullptr, "assets\\XBar_icon.ico", IMAGE_ICON, 48, 48,
                                              LR_LOADFROMFILE | LR_DEFAULTSIZE);
@@ -45,26 +65,6 @@ void toggle_tray_icon(HWND hwnd, bool register_icon) {
     }
 }
 
-void toggle_startup(bool run_at_startup, string app_path) {
-    HKEY hkey  = nullptr;
-    auto error = RegCreateKey(HKEY_CURRENT_USER,
-                              "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", &hkey);
-    if (error != ERROR_SUCCESS)
-        logger::error("Failed to open the registry key");
-
-    if (run_at_startup) {
-        auto error = RegSetValueEx(hkey, "XBar", 0, REG_SZ, (BYTE *)app_path.c_str(),
-                                   (DWORD)(app_path.size() + 1) * sizeof(wchar_t));
-        if (error != ERROR_SUCCESS)
-            logger::error("Failed to set the startup registry key value.");
-    } else {
-        auto error = RegDeleteValue(hkey, "XBar");
-        if (error != ERROR_SUCCESS)
-            logger::error("Failed to delete the startup registry key value.");
-    }
-    RegCloseKey(hkey);
-}
-
 LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
         case WM_USER_SHELLICON:
@@ -90,7 +90,7 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
             toggle_tray_icon(hwnd, false);
 
             // reset the taskbar to normal
-            window::set_window_style(taskbar, ACCENT_STATE::ACCENT_NORMAL);
+            window::set_style(taskbar, ACCENT_STATE::ACCENT_NORMAL);
             logger::info("Taskbar style is reset to normal.");
 
             PostQuitMessage(0);
@@ -127,7 +127,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 #ifndef _DEBUG
     // add XBar to the startup programs or remove it based on the config
     const bool run_at_startup = config["General"]["RunAtStartup"].value<bool>().value();
-    toggle_startup(run_at_startup, window::get_window_exe_path(window_hwnd));
+    toggle_startup(run_at_startup, window::get_exe_path(window_hwnd));
 #endif
 
     // register the tray icon if needed

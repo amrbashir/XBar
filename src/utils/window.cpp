@@ -8,11 +8,12 @@
 using namespace std;
 using namespace utils;
 
-void window::set_window_style(HWND hwnd, ACCENT_STATE accent, array<uint8_t, 4> rgba_array) {
+void window::set_style(HWND hwnd, ACCENT_STATE accent, array<uint8_t, 4> rgba_array) {
     static const auto SetWindowCompositionAttribute
         = reinterpret_cast<PFN_SET_WINDOW_COMPOSITION_ATTRIBUTE>(
             GetProcAddress(GetModuleHandle("user32.dll"), "SetWindowCompositionAttribute"));
 
+    // sending `WM_THEMECHANGED` to the given HWND makes it restore its original effect
     if (accent == ACCENT_STATE::ACCENT_NORMAL) {
         SendMessage(hwnd, WM_THEMECHANGED, 0, 0);
         return;
@@ -21,7 +22,6 @@ void window::set_window_style(HWND hwnd, ACCENT_STATE accent, array<uint8_t, 4> 
     uint8_t red   = rgba_array[0];
     uint8_t green = rgba_array[1];
     uint8_t blue  = rgba_array[2];
-
     // Acrylic doesn't like 0 opacity/alpha => credit goes to TranslucentTB project.
     uint8_t alpha = accent == ACCENT_STATE::ACCENT_ENABLE_ACRYLICBLURBEHIND && rgba_array[3] == 0
         ? 1
@@ -43,13 +43,15 @@ void window::set_window_style(HWND hwnd, ACCENT_STATE accent, array<uint8_t, 4> 
     SetWindowCompositionAttribute(hwnd, &data);
 }
 
-string window::get_window_exe_path(HWND hwnd) {
+string window::get_exe_path(HWND hwnd) {
     DWORD proc_id;
     TCHAR path[MAX_PATH];
 
     GetWindowThreadProcessId(hwnd, &proc_id);
     HANDLE proc_handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, proc_id);
+
     GetModuleFileNameEx(proc_handle, nullptr, path, MAX_PATH);
+
     CloseHandle(proc_handle);
     return path;
 }
@@ -57,6 +59,7 @@ string window::get_window_exe_path(HWND hwnd) {
 bool window::is_window_maximized(HWND hwnd) {
     WINDOWPLACEMENT wp = {};
     wp.length          = sizeof(WINDOWPLACEMENT);
+
     GetWindowPlacement(hwnd, &wp);
 
     return wp.showCmd == SW_SHOWMAXIMIZED;
@@ -65,7 +68,7 @@ bool window::is_window_maximized(HWND hwnd) {
 bool window::exists_in_taskbar(HWND hwnd) {
 
     /**
-     * Credits of this function @see http://www.dfcd.net/projects/switcher/switcher.c
+     * Credits of this function implementation @see http://www.dfcd.net/projects/switcher/switcher.c
      */
 
     TITLEBARINFO ti;

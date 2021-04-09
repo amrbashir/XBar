@@ -16,7 +16,7 @@ namespace utils::window {
      * value of 0 and max of 255
      * @returns void
      */
-    void set_window_style(HWND hwnd, ACCENT_STATE accent,
+    void set_style(HWND hwnd, ACCENT_STATE accent,
                           std::array<uint8_t, 4> rgba_array = { 0, 0, 0, 0 });
 
     /**
@@ -25,7 +25,7 @@ namespace utils::window {
      * @param hwnd is a HWND to the window
      * @returns std::string
      */
-    std::string get_window_exe_path(HWND hwnd);
+    std::string get_exe_path(HWND hwnd);
 
     /**
      * Checks if the window is maximized or not given its HWND
@@ -37,6 +37,7 @@ namespace utils::window {
 
     /**
      * Checks if the window is in Taskbar aka can be switched to by using Alt+Tab
+     *
      * Credits of this function implementation @see http://www.dfcd.net/projects/switcher/switcher.c
      *
      * @param hwnd is a HWND to the window

@@ -26,7 +26,7 @@ string strings::toLower(const string &str) {
     return lowered;
 };
 
-std::string strings::wstring_to_string(const std::wstring &str) {
+string strings::wstring_to_string(const std::wstring &str) {
     auto        src   = str.data();
     auto        state = std::mbstate_t();
     auto        size  = std::wcsrtombs(nullptr, &src, 0, &state);

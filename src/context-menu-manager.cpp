@@ -8,12 +8,17 @@ namespace fs = std::filesystem;
 
 void Context_Menu_Manager::create_context_menu(HWND hwnd) {
 
+    // create a context menu
     HMENU context_menu = CreatePopupMenu();
     AppendMenu(context_menu, MF_STRING, IDM_CONTEXT_EDIT_SETTINGS, "Edit Settings");
     AppendMenu(context_menu, MF_STRING, IDM_CONTEXT_HELP, "Help");
     AppendMenu(context_menu, MF_STRING, IDM_CONTEXT_EXIT, "Exit");
 
-    // bring our hidden window to the front, otherwise the context menu won't show correctly
+    /**
+     * bring our window to the front, otherwise the context menu won't show correctly
+     * @see
+     * https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-trackpopupmenu#remarks
+     */
     SetForegroundWindow(hwnd);
 
     // get the mouse position
@@ -29,13 +34,16 @@ void Context_Menu_Manager::create_context_menu(HWND hwnd) {
 
 void Context_Menu_Manager::context_menu_item_click(HWND hwnd, WPARAM wParam) {
     if (wParam == IDM_CONTEXT_EDIT_SETTINGS) {
+        // open the settings file
         WinExec(("notepad \"" + CONFIG_FILE_PATH + "\"").c_str(), SW_SHOWDEFAULT);
     }
     if (wParam == IDM_CONTEXT_HELP) {
-        ShellExecute(hwnd, "open", "https://github.com/amrbashir/XBar", nullptr, nullptr,
+        // open the github repo
+        ShellExecute(hwnd, "open", "https://github.com/amrbashir/XBar/issues", nullptr, nullptr,
                      SW_SHOWDEFAULT);
     }
     if (wParam == IDM_CONTEXT_EXIT) {
+        // exit the app
         DestroyWindow(hwnd);
     }
 }

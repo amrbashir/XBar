@@ -13,7 +13,7 @@ namespace utils::color {
      * like `#FFFFFFFF` it also can be with the hash symbole or without it
      * @returns std::array<uint8_t, 4>
      */
-    std::array<uint8_t, 4> from_hex_str(std::string hex);
+    std::array<uint8_t, 4> rgba_from_hex_str(std::string hex);
 
 } // namespace utils::color
 

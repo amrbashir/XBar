@@ -18,8 +18,7 @@ enum ACCENT_STATE : INT {                  // Affects the rendering of the backg
     ACCENT_ENABLE_ACRYLICBLURBEHIND   = 4, // Background is GradientColor, with acrylic blur effect.
     ACCENT_ENABLE_HOSTBACKDROP        = 5, // Unknown.
     ACCENT_INVALID_STATE              = 6, // Unknown. Seems to draw background fully transparent.
-    ACCENT_NORMAL = 0x0 // Fake value to know when to  send a message to the taskbar for it restore
-                        // its default effect.
+    ACCENT_NORMAL                     = 150 // Fake value to know when to restore a HWND's default.
 };
 
 struct ACCENT_POLICY {          // Determines how a window's background is rendered.
@@ -40,7 +39,7 @@ struct WINDOWCOMPOSITIONATTRIBDATA { // Options for [Get/Set]WindowCompositionAt
     UINT cbData;   // Size of the data being pointed to by pvData.
 };
 
-typedef BOOL(WINAPI* PFN_SET_WINDOW_COMPOSITION_ATTRIBUTE)(HWND,
-                                                           const WINDOWCOMPOSITIONATTRIBDATA*);
+typedef BOOL(WINAPI *PFN_SET_WINDOW_COMPOSITION_ATTRIBUTE)(HWND,
+                                                           const WINDOWCOMPOSITIONATTRIBDATA *);
 
 #endif
