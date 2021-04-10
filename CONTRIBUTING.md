@@ -43,7 +43,7 @@ Thank you for wanting to contribute to XBar.
 3. Open `.vscode/c_cpp_properties.json` file and change `compilerPath` to match the `cl.exe` compiler path on your system.
     > Should be something like this `C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29333/bin/Hostx64/x64/cl.exe`
 
-4. Open `.vscode/settings.json` file and change `[vcpkg root]` with the path where you installed vcpkg.
+4. Open `.vscode/settings.json` file and in the `CMAKE_TOOLCHAIN_FILE` field, change `[vcpkg root]` with the path where you installed vcpkg.
 
 ## Debug and Build
 1. Open command palette (<kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>p</kbd> or <kbd>F1</kbd>) and select `CMake: Select a Kit` then select `Visual Studio Build Tools 2019 Release amd64` or if you want to build/debug 32bit exe, select `Visual Studio Build Tools 2019 Release amd64_x86`.

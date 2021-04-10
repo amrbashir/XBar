@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "ms-vscode.cpptools",
+        "twxs.cmake",
+        "ms-vscode.cmake-tools",
+        "editorconfig.editorconfig",
+        "coenraads.bracket-pair-colorizer-2",
+        "cheshirekow.cmake-format"
+    ]
+}
