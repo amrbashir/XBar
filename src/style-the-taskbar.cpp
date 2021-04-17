@@ -6,8 +6,8 @@
 #include "utils/window.h"
 #include <Windows.h>
 #include <array>
+#include <nlohmann/json.hpp>
 #include <string>
-#include <toml++/toml.h>
 #include <tuple>
 
 using namespace std;
@@ -40,20 +40,20 @@ tuple<ACCENT_STATE, array<uint8_t, 4>> _parse_rule(string t_rule) {
     return tuple<ACCENT_STATE, array<uint8_t, 4>> { state, color };
 }
 
-void _apply_style(HWND taskbar, toml::table config, HWND window, string taskbar_state) {
-    const auto   rules    = config[taskbar_state]["Rules"];
-    const string exe_path = window::get_exe_path(window);
-    const string exe_name = exe_path.substr(exe_path.find_last_of("\\") + 1, string::npos);
+void _apply_style(HWND taskbar, nlohmann::json config, HWND window, string taskbar_state) {
+    const auto   rules            = config[taskbar_state]["rules"];
+    const string exe_path         = window::get_exe_path(window);
+    const string exe_name         = exe_path.substr(exe_path.find_last_of("\\") + 1, string::npos);
+    const string exe_name_lowered = strings::toLower(exe_name);
 
-    if (rules[strings::toLower(exe_name)]) {
-        // a rule has been found for the current window
-        const auto [accent_state, color] = _parse_rule(rules[exe_name].value<string>().value());
+    // a rule has been found for the current window
+    if (rules.contains(exe_name_lowered)) {
+        const auto [accent_state, color] = _parse_rule(rules[exe_name_lowered].get<string>());
         window::set_style(taskbar, accent_state, color);
 
     } else {
-        // normal config for given taskabr_state
-        const auto accent_state_str = config[taskbar_state]["AccentState"].value<string>().value();
-        const auto color_str        = config[taskbar_state]["Color"].value<string>().value();
+        const auto accent_state_str = config[taskbar_state]["accentState"].get<string>();
+        const auto color_str        = config[taskbar_state]["color"].get<string>();
 
         const array<uint8_t, 4> color        = color::rgba_from_hex_str(color_str);
         const ACCENT_STATE      accent_state = _parse_accent_state_from_string(accent_state_str);
@@ -62,7 +62,7 @@ void _apply_style(HWND taskbar, toml::table config, HWND window, string taskbar_
     };
 }
 
-void style_the_taskbar(HWND taskbar, toml::table config) {
+void style_the_taskbar(HWND taskbar, nlohmann::json config) {
     HWND top_most_window           = GetTopWindow(GetDesktopWindow());
     HWND top_most_maximized_window = nullptr;
     bool maximized_window_exists   = false;
@@ -81,8 +81,8 @@ void style_the_taskbar(HWND taskbar, toml::table config) {
     } while (window = GetWindow(window, GW_HWNDNEXT));
 
     if (maximized_window_exists) {
-        _apply_style(taskbar, config, top_most_maximized_window, "MaximizedWindow");
+        _apply_style(taskbar, config, top_most_maximized_window, "maximized");
     } else {
-        _apply_style(taskbar, config, top_most_window, "Regular");
+        _apply_style(taskbar, config, top_most_window, "regular");
     }
 }

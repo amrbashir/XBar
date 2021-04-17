@@ -6,18 +6,19 @@
 #include "utils/window.h"
 #include <Windows.h>
 #include <array>
+#include <nlohmann/json.hpp>
 #include <thread>
-#include <toml++/toml.h>
 #include <winreg.h>
 
+using json = nlohmann::json;
 using namespace std;
 using namespace utils;
 
-HANDLE      instance_mutex;
-thread *    taskbar_styling_thread;
-bool        should_style = true;
-const HWND  taskbar      = FindWindow("Shell_TrayWnd", nullptr);
-toml::table config       = Config_Manager::parse_config_file();
+HANDLE     instance_mutex;
+thread *   taskbar_styling_thread;
+bool       should_style = true;
+const HWND taskbar      = FindWindow("Shell_TrayWnd", nullptr);
+json       config       = Config_Manager::parse_config_file();
 
 void toggle_startup(bool run_at_startup, string app_path) {
     HKEY hkey  = nullptr;
@@ -105,12 +106,12 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
     // check if another instance is runnning
-    instance_mutex = OpenMutex(MUTEX_ALL_ACCESS, 0, "XBar v0.1.2");
+    instance_mutex = OpenMutex(MUTEX_ALL_ACCESS, 0, "XBar");
     if (instance_mutex) {
         MessageBox(nullptr, "Another instance is already running.", "XBar", MB_OK);
         return 0;
     } else {
-        instance_mutex = CreateMutex(0, 0, "XBar v0.1.2");
+        instance_mutex = CreateMutex(0, 0, "XBar");
     }
 
     // register a window class
@@ -135,12 +136,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
 #ifndef _DEBUG
     // add XBar to the startup programs or remove it based on the config
-    const bool run_at_startup = config["General"]["RunAtStartup"].value<bool>().value();
+    const bool run_at_startup = config["general"]["runAtStartup"].get<bool>();
     toggle_startup(run_at_startup, window::get_exe_path(window_hwnd));
 #endif
 
     // register the tray icon if needed
-    const bool show_tray_icon = config["General"]["ShowTrayIcon"].value<bool>().value();
+    const bool show_tray_icon = config["general"]["showTrayIcon"].get<bool>();
     toggle_tray_icon(window_hwnd, show_tray_icon);
 
     // set the procedure for active window changed event

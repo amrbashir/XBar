@@ -11,7 +11,7 @@ extern const UINT_PTR IDM_CONTEXT_EXIT          = 1002;
 
 #ifdef _DEBUG
 extern const string LOG_FILE_PATH    = "..\\..\\xbar.log";
-extern const string CONFIG_FILE_PATH = "..\\..\\xbar.toml";
+extern const string CONFIG_FILE_PATH = "..\\..\\xbar.json";
 #else
 string app_data_folder_path() {
     wchar_t *path;
@@ -27,6 +27,6 @@ string app_data_folder_path() {
 }
 
 extern const string MY_APP_DATA_DIR  = app_data_folder_path() + "\\XBar";
-extern const string CONFIG_FILE_PATH = app_data_folder_path() + "\\XBar\\xbar.toml";
+extern const string CONFIG_FILE_PATH = app_data_folder_path() + "\\XBar\\xbar.json";
 extern const string LOG_FILE_PATH    = app_data_folder_path() + "\\XBar\\xbar.log";
 #endif

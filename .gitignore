@@ -3,5 +3,5 @@
 /.vscode
 
 *.log
-xbar.toml
+xbar.json
 *.todo

@@ -33,17 +33,17 @@ void Context_Menu_Manager::create_context_menu(HWND hwnd) {
 }
 
 void Context_Menu_Manager::context_menu_item_click(HWND hwnd, WPARAM wParam) {
+    // open the settings file
     if (wParam == IDM_CONTEXT_EDIT_SETTINGS) {
-        // open the settings file
         WinExec(("notepad \"" + CONFIG_FILE_PATH + "\"").c_str(), SW_SHOWDEFAULT);
     }
+    // open the github repo
     if (wParam == IDM_CONTEXT_HELP) {
-        // open the github repo
         ShellExecute(hwnd, "open", "https://github.com/amrbashir/XBar/issues", nullptr, nullptr,
                      SW_SHOWDEFAULT);
     }
+    // exit the app
     if (wParam == IDM_CONTEXT_EXIT) {
-        // exit the app
         DestroyWindow(hwnd);
     }
 }

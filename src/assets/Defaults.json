@@ -1,0 +1,21 @@
+{
+    "general": {
+        "runAtStartup": true,
+        "showTrayIcon": true
+    },
+    "maximized": {
+        "accentState": "opaque",
+        "color": "#1f1f1f",
+        "rules": {
+            "code.exe": "#24292E/opaque",
+            "discord.exe": "#202225/opaque",
+            "vivaldi.exe": "#14151B/opaque",
+            "vlc.exe": "#15161C/opaque"
+        }
+    },
+    "regular": {
+        "accentState": "transparent",
+        "color": "#00000000",
+        "rules": {}
+    }
+}

@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.19.4)
 
 project(
   XBar
-  DESCRIPTION "A tool to change windows 10 taskbar appearance"
+  DESCRIPTION
+    "A tool to change windows 10 taskbar appearance with per-app rules"
   VERSION 0.1.1)
 
 # copy the assets folder to Release/Debug builds folder
@@ -22,9 +23,8 @@ target_compile_features(XBar PUBLIC cxx_std_20)
 find_package(fmt CONFIG REQUIRED)
 target_link_libraries(XBar PRIVATE fmt::fmt)
 
-find_package(tomlplusplus CONFIG REQUIRED)
-target_link_libraries(XBar PRIVATE tomlplusplus::tomlplusplus)
-
+find_package(nlohmann_json CONFIG REQUIRED)
+target_link_libraries(XBar PRIVATE nlohmann_json nlohmann_json::nlohmann_json)
 # ##############################################################################
 # Installer configuration
 # ##############################################################################

@@ -17,23 +17,36 @@ Having rules makes it possible to have seamless integration between the taskbar 
 
 ## Screenshots
 Given this config :
-```toml
-[Regular]
-Color="#00000000" # hex color with or without alpha/opacity value
-AccentState="transparent" # can be one of ( normal, transparent, blue, fluent, opaque )
+```jsonc
+{
+    "general": {
+        // whether to run the app at windows startup
+        "runAtStartup": true,
+        // whether to show or hide the tray icon
+        "showTrayIcon": true
+    },
+    "maximized": {
+        // can be one of "opaque", "transparent", "fluent", "normal", "blur"
+        "accentState": "opaque",
+        // can be 3-digit hex color like "#fff" or 6-digit like "#ffffff"
+        // or 8-digit that contiains alpha value like "#BFffffff"
+        "color": "#1f1f1f",
+        "rules": {
+            // the rules are basically key value pair
+            // where the key is the exeName
+            // and the value is the color followed by a slash followed by accent state, ie "color/accentState"
+            "discord.exe": "#202225/opaque",
+            "vivaldi.exe": "#14151B/opaque",
+            "firefox.exe": "#202340/opaque"
+        }
+    },
+    "regular": {
+        "accentState": "transparent",
+        "color": "#00000000",
+        "rules": {}
+    }
+}
 
-[Regular.Rules]
-
-
-[MaximizedWindow]
-Color="#1F1F1F"
-AccentState="opaque"
-
-[MaximizedWindow.Rules]
-#"exeName in lowercase"="color/accentState"
-"discord.exe"="#202225/opaque"
-"vivaldi.exe"="#14151B/opaque"
-"firefox.exe"="#202340/opaque"
 ```
 **Desktop**
 ![desktop1](screenshots/desktop1.png)
