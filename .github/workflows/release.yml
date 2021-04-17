@@ -38,7 +38,7 @@ jobs:
         vcpkg/bootstrap-vcpkg.bat -disableMetrics
 
     - name: Install vcpkg dependencies
-      run: vcpkg/vcpkg.exe install --triplet x64-windows fmt tomlplusplus
+      run: vcpkg/vcpkg.exe install --triplet x64-windows fmt nlohmann-json
 
 
     - name: 'CMake: Configue'
@@ -72,7 +72,7 @@ jobs:
         vcpkg/bootstrap-vcpkg.bat -disableMetrics
 
     - name: Install vcpkg dependencies
-      run: vcpkg/vcpkg.exe install --triplet x86-windows fmt tomlplusplus
+      run: vcpkg/vcpkg.exe install --triplet x86-windows fmt nlohmann-json
 
 
     - name: 'CMake: Configue'
