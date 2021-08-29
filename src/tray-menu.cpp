@@ -37,7 +37,7 @@ void TrayMenu::on_menu_item_click(HWND hwnd, WPARAM wParam) {
             break;
 
         case MENU_ITEM_EXIT:
-            DestroyWindow(hwnd);
+            PostQuitMessage(0);
             break;
     }
 }

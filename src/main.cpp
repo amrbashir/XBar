@@ -14,11 +14,9 @@ using json = nlohmann::json;
 using namespace std;
 using namespace utils;
 
-HANDLE     instance_mutex;
-thread *   taskbar_styling_thread;
-bool       should_style = true;
-const HWND taskbar      = FindWindow("Shell_TrayWnd", nullptr);
-json       config       = Config_Manager::parse_config_file();
+const HWND taskbar     = FindWindow("Shell_TrayWnd", nullptr);
+json       config      = Config_Manager::parse_config_file();
+bool       app_running = true;
 
 void toggle_startup(bool run_at_startup, string app_path) {
     HKEY hkey  = nullptr;
@@ -80,19 +78,6 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
             TrayMenu::on_menu_item_click(hwnd, wParam);
             break;
         }
-        case WM_DESTROY: {
-            // stop all styling
-            should_style = false;
-
-            // unregister the tray icon
-            toggle_tray_icon(hwnd, false);
-
-            // reset the taskbar to normal
-            window::set_swca_style(taskbar, ACCENT_STATE::ACCENT_NORMAL);
-
-            PostQuitMessage(0);
-            break;
-        }
         default:
             return DefWindowProc(hwnd, msg, wParam, lParam);
     }
@@ -101,7 +86,7 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
     // check if another instance is runnning
-    instance_mutex = OpenMutex(MUTEX_ALL_ACCESS, 0, "XBar");
+    HANDLE instance_mutex = OpenMutex(MUTEX_ALL_ACCESS, 0, "XBar");
     if (instance_mutex) {
         MessageBox(nullptr, "Another instance is already running.", "XBar", MB_OK);
         return 0;
@@ -109,7 +94,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         instance_mutex = CreateMutex(0, 0, "XBar");
     }
 
-    // register a window class
     const LPCSTR WINDOW_CLASS = "XBar Window Class";
 
     WNDCLASS w_class      = {};
@@ -143,18 +127,14 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     SetWinEventHook(
         EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, nullptr,
         [](HWINEVENTHOOK hWinEventHook, DWORD dwEvent, HWND hwnd, LONG idObject, LONG idChild,
-           DWORD dwEventThread, DWORD dwmsEventTime) {
-            if (should_style) {
-                style_the_taskbar(taskbar, config);
-            }
-        },
+           DWORD dwEventThread, DWORD dwmsEventTime) { style_the_taskbar(taskbar, config); },
         0, 0, WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS);
 
     // start a new thread to style the taskbar every 14 millisecons
-    taskbar_styling_thread = new thread([]() {
-        while (should_style) {
+    thread taskbar_styling_thread([]() {
+        while (app_running) {
             style_the_taskbar(taskbar, config);
-            Sleep(14);
+            std::this_thread::sleep_for(std::chrono::milliseconds(14));
         }
     });
 
@@ -164,6 +144,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
+
+    // exit logic when the message loop is over
+    app_running = false;
+    toggle_tray_icon(window_hwnd, false);
+    taskbar_styling_thread.join();
+    window::set_swca_style(taskbar, ACCENT_STATE::ACCENT_NORMAL);
 
     return 0;
 }
