@@ -8,11 +8,9 @@
 using namespace std;
 using namespace utils;
 
-array<uint8_t, 4> color::rgba_from_hex_str(string hex) {
-    // trim white spaces
-    const string trimmed_hex = strings::trim(hex);
-    // remove the `#`
-    const string hex_no_hash = trimmed_hex.starts_with("#") ? trimmed_hex.substr(1) : trimmed_hex;
+array<uint8_t, 4> color::rgba_from_hex_str(string t_hex) {
+    const string hex         = strings::trim(t_hex);
+    const string hex_no_hash = hex.starts_with("#") ? hex.substr(1) : hex;
     // if hex is 3-digit `ex: FFF`, convert it to 6-digit, otherwise leave as is.
     const string full_hex = hex_no_hash.length() == 3
         ? fmt::format("{0}{1}{2}{3}{4}{5}", hex_no_hash[0], hex_no_hash[0], hex_no_hash[1],
@@ -21,7 +19,7 @@ array<uint8_t, 4> color::rgba_from_hex_str(string hex) {
 
     const bool correct_hex_format = full_hex.length() == 6 || full_hex.length() == 8;
     if (correct_hex_format) {
-        // if 6-digit hex provided then add `FF` to its alpha channel
+        // if 6-digit hex provided then add the alpha channel
         const string hex_8_digit = full_hex.length() == 6 ? "FF" + full_hex : full_hex;
 
         // split channels
@@ -30,7 +28,7 @@ array<uint8_t, 4> color::rgba_from_hex_str(string hex) {
         const string green = hex_8_digit.substr(4, 2);
         const string blue  = hex_8_digit.substr(6, 2);
 
-        // parse the channels string values into uint8_t
+        // parse channes into uint8_t
         const uint8_t r = stoi(red.c_str(), 0, 16);
         const uint8_t g = stoi(green.c_str(), 0, 16);
         const uint8_t b = stoi(blue.c_str(), 0, 16);

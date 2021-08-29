@@ -4,11 +4,11 @@
 #include <Windows.h>
 #include <string>
 
-extern const UINT_PTR IDM_CONTEXT_EDIT_SETTINGS;
-extern const UINT_PTR IDM_CONTEXT_HELP;
-extern const UINT_PTR IDM_CONTEXT_EXIT;
+static const UINT_PTR MENU_ITEM_EDIT_SETTINGS = 1000;
+static const UINT_PTR MENU_ITEM_HELP          = 1001;
+static const UINT_PTR MENU_ITEM_EXIT          = 1002;
 
-static const UINT WM_USER_SHELLICON = 0x546;
+static const UINT WM_USER_TRAYICON = 546;
 
 #ifdef _DEBUG
 extern const std::string LOG_FILE_PATH;

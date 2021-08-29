@@ -76,5 +76,6 @@ nlohmann::json Config_Manager::parse_config_file() {
     json_file_input >> json;
 
     // migrate and return json
-    return migrate_config(json);
+    nlohmann::json migrated_config = migrate_config(json);
+    return migrated_config;
 }

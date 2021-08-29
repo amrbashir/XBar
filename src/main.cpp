@@ -1,7 +1,7 @@
 ﻿#include "config-manager.h"
 #include "constants.h"
-#include "context-menu-manager.h"
 #include "style-the-taskbar.h"
+#include "tray-menu.h"
 #include "utils/logger.h"
 #include "utils/window.h"
 #include <Windows.h>
@@ -41,15 +41,15 @@ void toggle_startup(bool run_at_startup, string app_path) {
 }
 
 void toggle_tray_icon(HWND hwnd, bool register_icon) {
-    const HICON LOGO_ICON = (HICON)LoadImage(nullptr, "assets\\XBar_icon.ico", IMAGE_ICON, 48, 48,
-                                             LR_LOADFROMFILE | LR_DEFAULTSIZE);
+    const HICON logo_hicon = (HICON)LoadImage(nullptr, "assets\\XBar_icon.ico", IMAGE_ICON, 48, 48,
+                                              LR_LOADFROMFILE | LR_DEFAULTSIZE);
 
     NOTIFYICONDATAA icon_data  = {};
     icon_data.cbSize           = sizeof(icon_data);
     icon_data.hWnd             = hwnd;
     icon_data.uFlags           = NIF_ICON | NIF_MESSAGE;
-    icon_data.hIcon            = LOGO_ICON;
-    icon_data.uCallbackMessage = WM_USER_SHELLICON;
+    icon_data.hIcon            = logo_hicon;
+    icon_data.uCallbackMessage = WM_USER_TRAYICON;
     icon_data.uVersion         = NOTIFYICON_VERSION_4;
 
     if (register_icon) {
@@ -69,22 +69,18 @@ void toggle_tray_icon(HWND hwnd, bool register_icon) {
 
 LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
-        case WM_USER_SHELLICON:
+        case WM_USER_TRAYICON:
             switch (lParam) {
                 case WM_CONTEXTMENU:
-                    Context_Menu_Manager::create_context_menu(hwnd);
-                    logger::deug("Context menu requested.");
+                    TrayMenu::show(hwnd);
                     break;
             }
             break;
         case WM_COMMAND: {
-            logger::deug("Context menu item clicked.");
-            Context_Menu_Manager::context_menu_item_click(hwnd, wParam);
+            TrayMenu::on_menu_item_click(hwnd, wParam);
             break;
         }
         case WM_DESTROY: {
-            logger::info("Quitting XBar...");
-
             // stop all styling
             should_style = false;
 
@@ -92,8 +88,7 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
             toggle_tray_icon(hwnd, false);
 
             // reset the taskbar to normal
-            window::set_style(taskbar, ACCENT_STATE::ACCENT_NORMAL);
-            logger::info("Taskbar style is reset to normal.");
+            window::set_swca_style(taskbar, ACCENT_STATE::ACCENT_NORMAL);
 
             PostQuitMessage(0);
             break;
@@ -126,7 +121,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         return -1;
     };
 
-    // create a hidden window to recieve events
+    // create a hidden window to recieve tray events
     const HWND window_hwnd = CreateWindowEx(0, WINDOW_CLASS, "XBar", WS_TILEDWINDOW, 200, 200, 500,
                                             500, nullptr, nullptr, hInstance, nullptr);
     if (window_hwnd == nullptr) {
@@ -140,7 +135,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     toggle_startup(run_at_startup, window::get_exe_path(window_hwnd));
 #endif
 
-    // register the tray icon if needed
+    // register the tray icon
     const bool show_tray_icon = config["general"]["showTrayIcon"].get<bool>();
     toggle_tray_icon(window_hwnd, show_tray_icon);
 

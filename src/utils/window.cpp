@@ -8,7 +8,7 @@
 using namespace std;
 using namespace utils;
 
-void window::set_style(HWND hwnd, ACCENT_STATE accent, array<uint8_t, 4> rgba_array) {
+void window::set_swca_style(HWND hwnd, ACCENT_STATE accent, array<uint8_t, 4> rgba_array) {
     static const auto SetWindowCompositionAttribute
         = reinterpret_cast<PFN_SET_WINDOW_COMPOSITION_ATTRIBUTE>(
             GetProcAddress(GetModuleHandle("user32.dll"), "SetWindowCompositionAttribute"));
@@ -49,17 +49,15 @@ string window::get_exe_path(HWND hwnd) {
 
     GetWindowThreadProcessId(hwnd, &proc_id);
     HANDLE proc_handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, proc_id);
-
     GetModuleFileNameEx(proc_handle, nullptr, path, MAX_PATH);
-
     CloseHandle(proc_handle);
+
     return path;
 }
 
-bool window::is_window_maximized(HWND hwnd) {
+bool window::is_maximized(HWND hwnd) {
     WINDOWPLACEMENT wp = {};
     wp.length          = sizeof(WINDOWPLACEMENT);
-
     GetWindowPlacement(hwnd, &wp);
 
     return wp.showCmd == SW_SHOWMAXIMIZED;

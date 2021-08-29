@@ -5,10 +5,6 @@
 using namespace std;
 using namespace utils;
 
-extern const UINT_PTR IDM_CONTEXT_EDIT_SETTINGS = 1000;
-extern const UINT_PTR IDM_CONTEXT_HELP          = 1001;
-extern const UINT_PTR IDM_CONTEXT_EXIT          = 1002;
-
 #ifdef _DEBUG
 extern const string LOG_FILE_PATH    = "..\\..\\xbar.log";
 extern const string CONFIG_FILE_PATH = "..\\..\\xbar.json";
