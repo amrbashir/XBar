@@ -122,7 +122,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
 #ifndef _DEBUG
     // add XBar to the startup programs or remove it based on the config
-    const bool run_at_startup = config["general"]["runAtStartup"].get<bool>();
+    const bool run_at_startup = run_data.config["general"]["runAtStartup"].get<bool>();
     toggle_startup(run_at_startup, window::get_exe_path(window_hwnd));
 #endif
 
