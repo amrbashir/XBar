@@ -10,6 +10,7 @@ static const UINT_PTR MENU_ITEM_HELP          = 1002;
 static const UINT_PTR MENU_ITEM_EXIT          = 1003;
 
 static const UINT WM_USER_TRAYICON = 546;
+static const UINT WM_NEW_INSTANCE  = 547;
 
 #ifdef _DEBUG
 extern const std::string LOG_FILE_PATH;

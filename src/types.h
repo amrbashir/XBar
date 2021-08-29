@@ -9,6 +9,9 @@ namespace types {
         HWND           taskbar;
         nlohmann::json config;
         bool           running;
+        LPCSTR         window_class;
+        LPCSTR         tray_window_name;
+        LPCSTR         instance_mutex_name;
     };
 
 } // namespace types

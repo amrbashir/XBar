@@ -72,6 +72,9 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
                     break;
             }
             break;
+        case WM_NEW_INSTANCE: {
+            PostQuitMessage(0);
+        }
         case WM_COMMAND: {
             TrayMenu::on_menu_item_click(hwnd, wParam, run_data);
             break;
@@ -83,34 +86,35 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 }
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
+    // initialize our runtime data struct
+    run_data.taskbar             = FindWindow("Shell_TrayWnd", nullptr);
+    run_data.config              = ConfigManager::parse_config_file();
+    run_data.running             = true;
+    run_data.window_class        = "XBar Window Class";
+    run_data.tray_window_name    = "XBar Tray Window";
+    run_data.instance_mutex_name = "XBar Mutex";
+
     // check if another instance is runnning
-    HANDLE instance_mutex = OpenMutex(MUTEX_ALL_ACCESS, 0, "XBar");
+    HANDLE instance_mutex = OpenMutex(MUTEX_ALL_ACCESS, 0, run_data.instance_mutex_name);
     if (instance_mutex) {
-        MessageBox(nullptr, "Another instance is already running.", "XBar", MB_OK);
-        return 0;
+        HWND hwnd = FindWindow(run_data.window_class, run_data.tray_window_name);
+        SendMessage(hwnd, WM_NEW_INSTANCE, 0, 0);
     } else {
-        instance_mutex = CreateMutex(0, 0, "XBar");
+        instance_mutex = CreateMutex(0, 0, run_data.instance_mutex_name);
     }
-
-    // initialize our runtime data
-    run_data.taskbar = FindWindow("Shell_TrayWnd", nullptr);
-    run_data.config  = ConfigManager::parse_config_file();
-    run_data.running = true;
-
-    const LPCSTR WINDOW_CLASS = "XBar Window Class";
 
     WNDCLASS w_class      = {};
     w_class.hInstance     = hInstance;
-    w_class.lpszClassName = WINDOW_CLASS;
+    w_class.lpszClassName = run_data.window_class;
     w_class.lpfnWndProc   = window_proc;
     if (!RegisterClass(&w_class)) {
         logger::error("Failed to register window Class.");
-        return -1;
     };
 
     // create a hidden window to recieve tray events
-    const HWND window_hwnd = CreateWindowEx(0, WINDOW_CLASS, "XBar", WS_TILEDWINDOW, 200, 200, 500,
-                                            500, nullptr, nullptr, hInstance, nullptr);
+    const HWND window_hwnd
+        = CreateWindowEx(0, run_data.window_class, run_data.tray_window_name, WS_TILEDWINDOW, 200,
+                         200, 500, 500, nullptr, nullptr, hInstance, nullptr);
     if (window_hwnd == nullptr) {
         logger::error("Failed to create widnow and obtain a handle to it.");
         return -1;
