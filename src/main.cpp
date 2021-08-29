@@ -2,6 +2,7 @@
 #include "constants.h"
 #include "style-the-taskbar.h"
 #include "tray-menu.h"
+#include "types.h"
 #include "utils/logger.h"
 #include "utils/window.h"
 #include <Windows.h>
@@ -10,13 +11,10 @@
 #include <thread>
 #include <winreg.h>
 
-using json = nlohmann::json;
 using namespace std;
 using namespace utils;
 
-const HWND taskbar     = FindWindow("Shell_TrayWnd", nullptr);
-json       config      = Config_Manager::parse_config_file();
-bool       app_running = true;
+types::RunData run_data;
 
 void toggle_startup(bool run_at_startup, string app_path) {
     HKEY hkey  = nullptr;
@@ -75,7 +73,7 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
             }
             break;
         case WM_COMMAND: {
-            TrayMenu::on_menu_item_click(hwnd, wParam, config);
+            TrayMenu::on_menu_item_click(hwnd, wParam, run_data);
             break;
         }
         default:
@@ -93,6 +91,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     } else {
         instance_mutex = CreateMutex(0, 0, "XBar");
     }
+
+    // initialize our runtime data
+    run_data.taskbar = FindWindow("Shell_TrayWnd", nullptr);
+    run_data.config  = ConfigManager::parse_config_file();
+    run_data.running = true;
 
     const LPCSTR WINDOW_CLASS = "XBar Window Class";
 
@@ -120,20 +123,21 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 #endif
 
     // register the tray icon
-    const bool show_tray_icon = config["general"]["showTrayIcon"].get<bool>();
+    const bool show_tray_icon = run_data.config["general"]["showTrayIcon"].get<bool>();
     toggle_tray_icon(window_hwnd, show_tray_icon);
 
     // set the procedure for active window changed event
     SetWinEventHook(
         EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, nullptr,
         [](HWINEVENTHOOK hWinEventHook, DWORD dwEvent, HWND hwnd, LONG idObject, LONG idChild,
-           DWORD dwEventThread, DWORD dwmsEventTime) { style_the_taskbar(taskbar, config); },
+           DWORD dwEventThread,
+           DWORD dwmsEventTime) { style_the_taskbar(run_data.taskbar, run_data.config); },
         0, 0, WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS);
 
     // start a new thread to style the taskbar every 14 millisecons
     thread taskbar_styling_thread([]() {
-        while (app_running) {
-            style_the_taskbar(taskbar, config);
+        while (run_data.running) {
+            style_the_taskbar(run_data.taskbar, run_data.config);
             std::this_thread::sleep_for(std::chrono::milliseconds(14));
         }
     });
@@ -146,10 +150,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     }
 
     // exit logic when the message loop is over
-    app_running = false;
+    run_data.running = false;
     toggle_tray_icon(window_hwnd, false);
     taskbar_styling_thread.join();
-    window::set_swca_style(taskbar, ACCENT_STATE::ACCENT_NORMAL);
+    window::set_swca_style(run_data.taskbar, ACCENT_STATE::ACCENT_NORMAL);
 
     return 0;
 }

@@ -1,6 +1,7 @@
 #include "tray-menu.h"
 #include "config-manager.h"
 #include "constants.h"
+#include "types.h"
 #include <Windows.h>
 #include <filesystem>
 #include <nlohmann/json.hpp>
@@ -28,14 +29,14 @@ void TrayMenu::show(HWND hwnd) {
     DestroyMenu(context_menu);
 }
 
-void TrayMenu::on_menu_item_click(HWND hwnd, WPARAM wParam, nlohmann::json &config) {
+void TrayMenu::on_menu_item_click(HWND hwnd, WPARAM wParam, types::RunData &run_data) {
     switch (wParam) {
         case MENU_ITEM_EDIT_SETTINGS:
             WinExec(("notepad \"" + CONFIG_FILE_PATH + "\"").c_str(), SW_SHOWDEFAULT);
             break;
 
         case MENU_ITEM_RELOAD_CONFIG:
-            config = Config_Manager::parse_config_file();
+            run_data.config = ConfigManager::parse_config_file();
             break;
 
         case MENU_ITEM_HELP:

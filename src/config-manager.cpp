@@ -59,7 +59,7 @@ nlohmann::json migrate_config(nlohmann::json user_config) {
     return user_config;
 }
 
-nlohmann::json Config_Manager::parse_config_file() {
+nlohmann::json ConfigManager::parse_config_file() {
 #ifndef _DEBUG
     // creates the app directory if it doesn't exist
     CreateDirectory(MY_APP_DATA_DIR.c_str(), nullptr);
