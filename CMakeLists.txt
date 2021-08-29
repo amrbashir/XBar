@@ -4,7 +4,7 @@ project(
   XBar
   DESCRIPTION
     "A tool to change windows 10 taskbar appearance with per-app rules"
-  VERSION 0.1.2)
+  VERSION 0.1.3)
 
 # copy the assets folder to Release/Debug builds folder
 file(COPY "${CMAKE_SOURCE_DIR}/src/assets"
