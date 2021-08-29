@@ -1,7 +1,9 @@
 #include "tray-menu.h"
+#include "config-manager.h"
 #include "constants.h"
 #include <Windows.h>
 #include <filesystem>
+#include <nlohmann/json.hpp>
 
 using namespace std;
 namespace fs = std::filesystem;
@@ -9,6 +11,7 @@ namespace fs = std::filesystem;
 void TrayMenu::show(HWND hwnd) {
     HMENU context_menu = CreatePopupMenu();
     AppendMenu(context_menu, MF_STRING, MENU_ITEM_EDIT_SETTINGS, "Edit Settings");
+    AppendMenu(context_menu, MF_STRING, MENU_ITEM_RELOAD_CONFIG, "Reload Config");
     AppendMenu(context_menu, MF_STRING, MENU_ITEM_HELP, "Help");
     AppendMenu(context_menu, MF_STRING, MENU_ITEM_EXIT, "Exit");
 
@@ -25,10 +28,14 @@ void TrayMenu::show(HWND hwnd) {
     DestroyMenu(context_menu);
 }
 
-void TrayMenu::on_menu_item_click(HWND hwnd, WPARAM wParam) {
+void TrayMenu::on_menu_item_click(HWND hwnd, WPARAM wParam, nlohmann::json &config) {
     switch (wParam) {
         case MENU_ITEM_EDIT_SETTINGS:
             WinExec(("notepad \"" + CONFIG_FILE_PATH + "\"").c_str(), SW_SHOWDEFAULT);
+            break;
+
+        case MENU_ITEM_RELOAD_CONFIG:
+            config = Config_Manager::parse_config_file();
             break;
 
         case MENU_ITEM_HELP:

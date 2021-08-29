@@ -75,7 +75,7 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
             }
             break;
         case WM_COMMAND: {
-            TrayMenu::on_menu_item_click(hwnd, wParam);
+            TrayMenu::on_menu_item_click(hwnd, wParam, config);
             break;
         }
         default:

@@ -5,8 +5,9 @@
 #include <string>
 
 static const UINT_PTR MENU_ITEM_EDIT_SETTINGS = 1000;
-static const UINT_PTR MENU_ITEM_HELP          = 1001;
-static const UINT_PTR MENU_ITEM_EXIT          = 1002;
+static const UINT_PTR MENU_ITEM_RELOAD_CONFIG = 1001;
+static const UINT_PTR MENU_ITEM_HELP          = 1002;
+static const UINT_PTR MENU_ITEM_EXIT          = 1003;
 
 static const UINT WM_USER_TRAYICON = 546;
 
