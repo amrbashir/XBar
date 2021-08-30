@@ -56,11 +56,12 @@ string window::get_exe_path(HWND hwnd) {
 }
 
 bool window::is_maximized(HWND hwnd) {
-    WINDOWPLACEMENT wp = {};
-    wp.length          = sizeof(WINDOWPLACEMENT);
-    GetWindowPlacement(hwnd, &wp);
-
-    return wp.showCmd == SW_SHOWMAXIMIZED;
+    WINDOWPLACEMENT wp;
+    if (!GetWindowPlacement(hwnd, &wp)) {
+        return false;
+    } else {
+        return wp.showCmd == SW_MAXIMIZE;
+    }
 }
 
 bool window::exists_in_taskbar(HWND hwnd) {
