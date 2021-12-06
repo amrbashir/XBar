@@ -61,8 +61,9 @@ Given this config :
 - [ ] Detect Areo Peek
 - [ ] Detect Start Menu
 - [ ] Detect Task View
+- [ ] Contribute back to [TranslucentTB](https://github.com/TranslucentTB/TranslucentTB)
 
-## Contributing or Build
+## Contributing or Building from source.
 
 See the [CONTRIBUTING.md](CONTRIBUTING.md) .
 
