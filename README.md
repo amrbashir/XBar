@@ -1,3 +1,9 @@
+# Archived!!
+
+As of 4th of Feb 2022, Rules has been added to [TranslucentTB](https://github.com/TranslucentTB/TranslucentTB/) in [PR#513](
+https://github.com/TranslucentTB/TranslucentTB/pull/513) and this project has been archived for good.
+TranslucentTB was the reason I made this project in the first place and I am glad I contributed it the feature I needed back to it. 
+
 <p align="center">
     <img src="XBar.png" >
     <br />
@@ -61,7 +67,7 @@ Given this config :
 - [ ] Detect Areo Peek
 - [ ] Detect Start Menu
 - [ ] Detect Task View
-- [ ] Contribute back to [TranslucentTB](https://github.com/TranslucentTB/TranslucentTB)
+- [X] Contribute back to [TranslucentTB](https://github.com/TranslucentTB/TranslucentTB)
 
 ## Contributing or Building from source.
 
